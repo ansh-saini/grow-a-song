@@ -17,7 +17,7 @@ At the door
 5. Lock the phone, pocket it, run.
 
 What you should hear
-- A new layer fades in at 0, 2, 5, 9, 14 and 20 counted minutes (20 min target).
+- A new layer fades in at about 0, 2, 5, 8, 13 and 20 counted minutes (20 min target).
 - Tempo drifts toward your stride within about 20 s of reaching a steady cadence.
 - Minutes only count after civil dawn (sun above -6 deg) and while moving on foot.
 
