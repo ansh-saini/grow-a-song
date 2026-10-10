@@ -22,7 +22,7 @@ Lines and timings live in `scripts/narration.tsv`.
 
 (0:04 to 0:40) No narration. The song grows layer by layer.
 
-(0:40) Gemma wrote it right there on my phone, so none of my location or running data went anywhere.
+(0:40) Gemma composed it right there on my phone, so none of my location or running data went anywhere.
 
 (0:56) Anyway, go outside and see what yours sounds like.
 
