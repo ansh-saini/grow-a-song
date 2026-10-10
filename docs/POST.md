@@ -120,7 +120,9 @@ With an open-weight model running locally, none of it leaves the phone:
 
 ## My Agent Session
 
-AGENT_SESSION_EMBED (optional)
+I built this with Claude Code in one long session. Here's the transcript, from the first idea to the demo video, with secrets and private paths removed:
+
+{% agent_session 689 %}
 
 ## Prize Categories
 
