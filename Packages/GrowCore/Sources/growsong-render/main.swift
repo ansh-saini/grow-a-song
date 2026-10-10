@@ -1,6 +1,45 @@
 import Foundation
 import GrowCore
 
+// Export mode reproduces the app's Export button for a day pulled off the phone:
+//   growsong-render export <days.json> <yyyy-MM-dd> <targetMinutes> <clip.wav|-> <out.wav> [loops]
+// It also writes <out>-growth.wav: the run compressed, layers unlocking one by one.
+if CommandLine.arguments.count > 6, CommandLine.arguments[1] == "export" {
+    let a = CommandLine.arguments
+    let days = try JSONDecoder().decode([DayRecord].self, from: Data(contentsOf: URL(fileURLWithPath: a[2])))
+    guard let day = days.first(where: { $0.day == a[3] }) else { print("no day \(a[3])"); exit(1) }
+    let target = Double(a[4]) ?? 30
+    let loops = a.count > 7 ? Double(a[7]) ?? 2 : 2
+    let clip = a[5] == "-" ? nil : FileManager.default.contents(atPath: a[5]).flatMap(WAVReader.mono)
+    let spec = day.playableSpec
+    let layers = LayerSchedule(targetMinutes: target).unlocked(minutes: day.minutes)
+    let sr = 44100.0
+    let loopSeconds = Double(Sequencer.bars * 4) * 60 / Double(spec.bpm)
+
+    // Same steps as AudioEngine.export in the app.
+    let r = SongRenderer(spec: spec, sampleRate: sr)
+    r.setUnlocked(layers, immediate: true)
+    if let clip { r.setFieldClip(FieldClip.prepare(clip.samples, inputRate: clip.rate, outputRate: sr)) }
+    let (l, rr) = r.renderOffline(seconds: loopSeconds * loops)
+    try WAVWriter.data(left: l, right: rr, sampleRate: Int(sr)).write(to: URL(fileURLWithPath: a[6]))
+
+    // Growth version: one loop per layer stage, fading in like the live session.
+    let g = SongRenderer(spec: spec, sampleRate: sr)
+    if let clip { g.setFieldClip(FieldClip.prepare(clip.samples, inputRate: clip.rate, outputRate: sr)) }
+    var gl: [Float] = [], gr: [Float] = []
+    for layer in Layer.allCases where layers.contains(layer) {
+        g.setUnlocked(Set(Layer.allCases.filter { $0 <= layer }))
+        let (x, y) = g.renderOffline(seconds: loopSeconds)
+        gl += x; gr += y
+    }
+    let growthURL = URL(fileURLWithPath: a[6]).deletingPathExtension().path + " (growth).wav"
+    try WAVWriter.data(left: gl, right: gr, sampleRate: Int(sr)).write(to: URL(fileURLWithPath: growthURL))
+    print("\(spec.title): \(spec.key) \(spec.scale.rawValue) \(spec.bpm) bpm, \(layers.count)/6 layers, \(Int(day.minutes)) min outside, field clip: \(clip != nil)")
+    print(String(format: "wrote %@ (%.0fs) and growth version (%.0fs)", a[6], loopSeconds * loops, Double(gl.count) / sr))
+    exit(0)
+}
+
+
 // Renders each layer stage of a song to WAV and prints loudness numbers.
 // Usage: growsong-render [outDir] [secondsPerStage] [spec.json]
 

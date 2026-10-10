@@ -561,3 +561,42 @@ public enum WAVWriter {
         return d
     }
 }
+
+public enum WAVReader {
+    /// Reads 16-bit PCM WAV (as written by WAVWriter) into mono floats. Returns nil for other formats.
+    public static func mono(_ data: Data) -> (samples: [Float], rate: Double)? {
+        let b = [UInt8](data)
+        guard b.count > 44, String(decoding: b[0..<4], as: UTF8.self) == "RIFF",
+              String(decoding: b[8..<12], as: UTF8.self) == "WAVE" else { return nil }
+        func u16(_ i: Int) -> Int { Int(b[i]) | Int(b[i + 1]) << 8 }
+        func u32(_ i: Int) -> Int { u16(i) | u16(i + 2) << 16 }
+        var channels = 0, rate = 0, bits = 0
+        var i = 12
+        while i + 8 <= b.count {
+            let id = String(decoding: b[i..<i + 4], as: UTF8.self)
+            let size = u32(i + 4)
+            let body = i + 8
+            if id == "fmt " {
+                channels = u16(body + 2)
+                rate = u32(body + 4)
+                bits = u16(body + 14)
+            } else if id == "data" {
+                guard bits == 16, channels > 0 else { return nil }
+                let end = min(b.count, body + size)
+                let frames = (end - body) / (2 * channels)
+                var out = [Float](repeating: 0, count: frames)
+                for f in 0..<frames {
+                    var sum: Float = 0
+                    for c in 0..<channels {
+                        let o = body + (f * channels + c) * 2
+                        sum += Float(Int16(bitPattern: UInt16(b[o]) | UInt16(b[o + 1]) << 8)) / 32768
+                    }
+                    out[f] = sum / Float(channels)
+                }
+                return (out, Double(rate))
+            }
+            i = body + size + (size & 1)
+        }
+        return nil
+    }
+}

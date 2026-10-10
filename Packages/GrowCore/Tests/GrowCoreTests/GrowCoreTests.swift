@@ -346,3 +346,15 @@ private let lat = 28.61, lon = 77.21
         #expect(r.currentBeat < 1)
     }
 }
+
+@Suite struct WAVReaderTests {
+    @Test func roundTripsWAVWriterOutput() {
+        let left: [Float] = (0..<1000).map { Float(sin(Double($0) * 0.1)) * 0.5 }
+        let data = WAVWriter.data(left: left, right: left, sampleRate: 48000)
+        let back = WAVReader.mono(data)
+        #expect(back?.rate == 48000)
+        #expect(back?.samples.count == 1000)
+        #expect(zip(left, back?.samples ?? []).allSatisfy { abs($0 - $1) < 0.001 })
+        #expect(WAVReader.mono(Data("nope".utf8)) == nil)
+    }
+}
