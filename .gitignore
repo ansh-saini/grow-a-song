@@ -4,3 +4,5 @@ out/
 Packages/GrowCore/.build/
 .DS_Store
 Media/
+
+.env

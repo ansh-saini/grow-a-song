@@ -39,6 +39,7 @@ actor GemmaComposer {
             return
         }
         MLX.Memory.cacheLimit = 64 * 1024 * 1024
+        Self.useDurableModelStorage()
         let task = Task {
             try await #huggingFaceLoadModelContainer(
                 configuration: Self.configuration,
@@ -47,6 +48,21 @@ actor GemmaComposer {
         loading = task
         defer { loading = nil }
         container = try await task.value
+    }
+
+    /// iOS deletes Library/Caches under storage pressure, which wiped the downloaded model
+    /// on a real phone and forced a fresh 0.8 GB download. Application Support is never purged.
+    /// Excluded from iCloud backup since it can always be downloaded again.
+    static func useDurableModelStorage() {
+        #if os(iOS)
+        guard var dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return }
+        dir.appendPathComponent("huggingface/hub", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = true
+        try? dir.setResourceValues(values)
+        setenv("HF_HUB_CACHE", dir.path, 1)
+        #endif
     }
 
     /// Frees GPU memory so the audio engine has the phone to itself.
