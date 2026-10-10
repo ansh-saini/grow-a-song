@@ -18,17 +18,18 @@ Timeline of the cut (59.3 s):
 Minimal on purpose. The song is the demo; the voice only frames it.
 Lines and timings live in `scripts/narration.tsv`.
 
-(0:00) My Friday morning run wrote this song.
+(0:00) So this is what my run sounded like on Friday morning, or at least what my phone made of it.
 
 (0:04 to 0:40) No narration. The song grows layer by layer.
 
-(0:40) Composed by Gemma, on my phone. No server.
+(0:40) Gemma wrote it right there on my phone, so none of my location or running data went anywhere.
 
-(0:56) Go outside. Finish your song.
+(0:56) Anyway, go outside and see what yours sounds like.
 
 ## Notes
 
 - The narration is generated with ElevenLabs for the video only. The app makes no
   network calls; say so in the post (already in the Prize Categories section).
-- Keep the voice calm and close, like a voice memo, not an announcer.
+- Keep the voice calm and close, like a voice memo, not an announcer. Write lines the way
+  you'd say them to a friend: full sentences, no slogan fragments.
 - Build with narration: `WITH_NARRATION=1 scripts/make-demo.sh`
