@@ -21,20 +21,20 @@ On Friday morning I went for a 35 minute run. When I started, my song was a sing
 | 13 min | melody |
 | 20 min | a field recording of where you are |
 
-Stay inside all day and your song stays thin. Get out and it fills in. You can't skip ahead and you can't buy layers. The only way to hear the whole song is to go outside.
+If you stay inside all day, your song stays thin, and it only fills in once you get out. There's no way to skip ahead or buy layers, so the only way to hear the whole song is to go outside.
 
 The composer is **Gemma 3 1B, running on my iPhone 13 Pro**. Before each walk or run it looks at the time of day, how high the sun is, what you're about to do, and how much you've been outside this week, then picks the key, scale, tempo, chord progression, instruments, a title and a one-line liner note. My run got this:
 
 > **Ephemeral Echoes**. D dorian, 160 bpm, chords 1 7 5 3, warm pads, pulse bass, driving drums, kalimba.
 > *"The world stretches out beneath you, a slow, expectant invitation."*
 
-No account, no server, no API key. After a one-time model download it works in airplane mode.
+There's no account or server behind it, and after a one-time model download it works in airplane mode.
 
 ## Demo
 
 {% youtube LCFFlzZQWFE %}
 
-Here is the song from my run, exactly as the app rendered it, plus a version that replays the run with the layers arriving one at a time:
+Here is the song from my run, rendered by the same engine the app uses, plus a version that replays the run with the layers arriving one at a time:
 
 - [Ephemeral Echoes (full song)](https://res.cloudinary.com/dz05pa4ud/video/upload/v1791619582/2026-10-09_Ephemeral_Echoes_fvm7ke.m4a)
 - [Ephemeral Echoes (how it grew, layer by layer)](https://res.cloudinary.com/dz05pa4ud/video/upload/v1791619583/2026-10-09_Ephemeral_Echoes_growth_ix2hzm.m4a)
@@ -56,7 +56,7 @@ Swift, SwiftUI, AVAudioEngine, CoreLocation, CoreMotion, HealthKit and [MLX Swif
 
 ### Gemma composes, Swift plays
 
-I didn't want a 1B model generating audio or MIDI note by note. Small models are good at taste and bad at bookkeeping. So Gemma makes about ten musical decisions and returns them as JSON:
+I didn't want a 1B model generating audio or MIDI note by note. A model that small does fine at picking a mood and badly at keeping track of hundreds of notes, so Gemma makes about ten musical decisions and returns them as JSON:
 
 ```json
 {"title": "Ephemeral Echoes", "key": "D", "scale": "dorian", "bpm": 160,
@@ -69,7 +69,7 @@ A deterministic sequencer turns that into 16 bars of notes (melody in an A A' B 
 
 ### Getting reliable JSON out of a 1B model
 
-My first eval on the Mac looked fine on the surface: 6 out of 6 songs were playable. Underneath, the schema-constrained decoding (MLX's `MLXGuidedGeneration`, built on XGrammar) was failing every single time, and a fallback parser was rescuing it.
+My first eval on the Mac looked fine on the surface: 6 out of 6 songs were playable. Underneath, the schema-constrained decoding (MLX's `MLXGuidedGeneration`, built on XGrammar) was failing every time, and a fallback parser was quietly rescuing it.
 
 Logging the partial output showed why. Gemma was emitting newline after newline. JSON allows unlimited whitespace, greedy decoding found that whitespace was always a legal next token, and it filled all 360 tokens with it. Adding the library's whitespace and closing-token biases fixed it:
 
@@ -111,12 +111,11 @@ I built this in one long session with Claude Code: plan, code, test, review, fix
 
 Grow a Song needs your location, your movement, sometimes your health data, and a microphone. That's a lot to hand to a server so it can pick a chord progression.
 
-With an open-weight model running locally, none of it leaves the phone:
+With an open-weight model running locally, none of that leaves the phone. GPS, motion, daylight minutes and the street recordings stay on the device, and there's no backend that could leak them.
 
-- **Private by design.** GPS, motion, daylight minutes and your street recordings stay on the device. There's no backend to leak.
-- **Works where runs happen.** Trails and parks often have no signal. After a 0.8 GB download, everything works offline.
-- **Costs nothing to run.** No per-request bill means I can let Gemma compose before every single walk.
-- **Swappable.** The model is one line of config. When a bigger Gemma fits comfortably on a phone, I can upgrade without changing anything else.
+It also works where runs actually happen. Trails and parks often have no signal, and after the 0.8 GB download the app doesn't need one.
+
+Running the model costs me nothing, so Gemma can compose before every walk instead of me rationing requests. And because the model is one line of config, I can move to a bigger Gemma once one fits comfortably on a phone.
 
 ## Prize Categories
 
