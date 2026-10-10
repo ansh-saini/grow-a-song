@@ -48,7 +48,7 @@ The numbers from that morning, pulled off the phone:
 
 ## Code
 
-GITHUB_REPO_URL
+{% embed https://github.com/ansh-saini/grow-a-song %}
 
 Swift, SwiftUI, AVAudioEngine, CoreLocation, CoreMotion, HealthKit and [MLX Swift LM](https://github.com/ml-explore/mlx-swift-lm). The music engine is a plain Swift package with 37 tests, so most of it runs and tests on a Mac without a phone.
 
