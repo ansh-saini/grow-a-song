@@ -32,12 +32,12 @@ No account, no server, no API key. After a one-time model download it works in a
 
 ## Demo
 
-{% embed DEMO_VIDEO_URL %}
+{% youtube LCFFlzZQWFE %}
 
 Here is the song from my run, exactly as the app rendered it, plus a version that replays the run with the layers arriving one at a time:
 
-- Ephemeral Echoes (full): AUDIO_LINK_FULL
-- Ephemeral Echoes (how it grew): AUDIO_LINK_GROWTH
+- [Ephemeral Echoes (full song)](https://res.cloudinary.com/dz05pa4ud/video/upload/v1791619582/2026-10-09_Ephemeral_Echoes_fvm7ke.m4a)
+- [Ephemeral Echoes (how it grew, layer by layer)](https://res.cloudinary.com/dz05pa4ud/video/upload/v1791619583/2026-10-09_Ephemeral_Echoes_growth_ix2hzm.m4a)
 
 The numbers from that morning, pulled off the phone:
 
