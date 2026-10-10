@@ -91,7 +91,6 @@ card("075-app-bg") { _ in
 card("08-selfie-bg") { _ in
     text("After the run", y: 110, size: 60, weight: .semibold, serif: true)
     text("listening back to the song I grew", y: 200, size: 42, color: dim, italic: true)
-    text("Ephemeral Echoes · 6 of 6 layers", y: 1730, size: 40, weight: .medium, color: colors[5])
 }
 
 card("09-end") { ctx in

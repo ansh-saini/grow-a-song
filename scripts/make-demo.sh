@@ -20,9 +20,19 @@ seg $F/00-title.png 4 $T/v00.mp4
 for i in 1 2 3 4 5 6; do seg $F/0$i-stage.png 6 $T/v0$i.mp4; done
 seg $F/07-stats.png 5 $T/v07.mp4
 
-# Real app footage: the Week tab from the phone's screen recording (12.0-17.5 s).
-ffmpeg -v error -y -loop 1 -i $F/075-app-bg.png -ss 12 -t 5.5 -i Media/screen-recording.MP4 \
-  -filter_complex "[1:v]fps=30,scale=-2:1640,setsar=1[app];[0:v][app]overlay=(W-w)/2:240:shortest=1,fps=30,format=yuv420p,fade=t=in:st=0:d=0.3" \
+# Real app footage from the phone's screen recording: Today (playing), Week, Settings.
+APP_CLIPS="31:36 12:17 17.2:24.2"
+APP_DUR=0
+i=0; parts=""; labels=""
+for c in $APP_CLIPS; do
+  a=${c%%:*}; b=${c##*:}
+  parts="$parts[1:v]trim=$a:$b,setpts=PTS-STARTPTS,fps=30,scale=-2:1640,setsar=1[c$i];"
+  labels="$labels[c$i]"
+  APP_DUR=$(echo "$APP_DUR + $b - $a" | bc)
+  i=$((i+1))
+done
+ffmpeg -v error -y -loop 1 -i $F/075-app-bg.png -i Media/screen-recording.MP4 \
+  -filter_complex "${parts}${labels}concat=n=$i:v=1:a=0[app];[0:v][app]overlay=(W-w)/2:240:shortest=1,fps=30,format=yuv420p,fade=t=in:st=0:d=0.3" \
   -an -c:v libx264 -preset medium -crf 18 $T/v075.mp4
 
 # Post-run selfie, centered on its card.
@@ -33,11 +43,11 @@ seg $F/09-end.png 4 $T/v09.mp4
 
 : > $T/list.txt
 for v in v00 v01 v02 v03 v04 v05 v06 v07 v075 v08 v09; do echo "file '$v.mp4'" >> $T/list.txt; done
-ffmpeg -v error -y -f concat -safe 0 -i $T/list.txt -c copy $T/video.mp4
+ffmpeg -v error -y -f concat -safe 0 -i $T/list.txt -vf "fps=30,format=yuv420p" -c:v libx264 -preset medium -crf 18 -video_track_timescale 30000 $T/video.mp4
 DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 $T/video.mp4)
 
 # Music: a 4 s teaser of the finished song, then the 36 s growth, then the finished song to the end.
-SELFIE_START=50.5
+SELFIE_START=$(echo "45 + $APP_DUR" | bc)
 END_START=$(echo "$SELFIE_START + 4.9" | bc)
 ffmpeg -v error -y \
   -i out/demo/song.wav -i "out/demo/song (growth).wav" -i out/demo/song.wav -i Media/post-run.mov \
