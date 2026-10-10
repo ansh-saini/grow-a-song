@@ -2,7 +2,7 @@ import Foundation
 import GrowCore
 
 // Export mode reproduces the app's Export button for a day pulled off the phone:
-//   growsong-render export <days.json> <yyyy-MM-dd> <targetMinutes> <clip.wav|-> <out.wav> [loops]
+//   growsong-render export <days.json> <yyyy-MM-dd> <targetMinutes> <clip.wav|-> <out.wav> [loops] [growthStageSeconds]
 // It also writes <out>-growth.wav: the run compressed, layers unlocking one by one.
 if CommandLine.arguments.count > 6, CommandLine.arguments[1] == "export" {
     let a = CommandLine.arguments
@@ -27,9 +27,10 @@ if CommandLine.arguments.count > 6, CommandLine.arguments[1] == "export" {
     let g = SongRenderer(spec: spec, sampleRate: sr)
     if let clip { g.setFieldClip(FieldClip.prepare(clip.samples, inputRate: clip.rate, outputRate: sr)) }
     var gl: [Float] = [], gr: [Float] = []
+    let stageSeconds = a.count > 8 ? Double(a[8]) ?? loopSeconds : loopSeconds
     for layer in Layer.allCases where layers.contains(layer) {
         g.setUnlocked(Set(Layer.allCases.filter { $0 <= layer }))
-        let (x, y) = g.renderOffline(seconds: loopSeconds)
+        let (x, y) = g.renderOffline(seconds: stageSeconds)
         gl += x; gr += y
     }
     let growthURL = URL(fileURLWithPath: a[6]).deletingPathExtension().path + " (growth).wav"
