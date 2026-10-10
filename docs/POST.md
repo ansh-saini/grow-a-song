@@ -118,12 +118,6 @@ With an open-weight model running locally, none of it leaves the phone:
 - **Costs nothing to run.** No per-request bill means I can let Gemma compose before every single walk.
 - **Swappable.** The model is one line of config. When a bigger Gemma fits comfortably on a phone, I can upgrade without changing anything else.
 
-## My Agent Session
-
-I built this with Claude Code in one long session. Here's the transcript, from the first idea to the demo video, with secrets and private paths removed:
-
-{% agent_session 689 %}
-
 ## Prize Categories
 
 - **Best Use of Gemma**: Gemma 3 1B (QAT, 4-bit) runs fully on device through MLX Swift LM and composes every song with schema-guided JSON output.
