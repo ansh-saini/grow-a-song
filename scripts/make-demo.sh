@@ -11,12 +11,15 @@ mkdir -p "$T"
 NARRATION="${1:-}"
 WITH_NARRATION="${WITH_NARRATION:-0}"
 BG=0x0b1410
+# Title card holds the spoken intro. The first LEAD seconds are silent so nothing blasts on play.
+TITLE=${TITLE:-12.4}
+LEAD=1
 
 seg() { # image seconds out
   ffmpeg -v error -y -loop 1 -t "$2" -i "$1" -vf "fps=30,format=yuv420p,fade=t=in:st=0:d=0.4" -c:v libx264 -preset medium -crf 18 "$3"
 }
 
-seg $F/00-title.png 4 $T/v00.mp4
+seg $F/00-title.png $TITLE $T/v00.mp4
 for i in 1 2 3 4 5 6; do seg $F/0$i-stage.png 6 $T/v0$i.mp4; done
 seg $F/07-stats.png 5 $T/v07.mp4
 
@@ -46,15 +49,18 @@ for v in v00 v01 v02 v03 v04 v05 v06 v07 v075 v08 v09; do echo "file '$v.mp4'" >
 ffmpeg -v error -y -f concat -safe 0 -i $T/list.txt -vf "fps=30,format=yuv420p" -c:v libx264 -preset medium -crf 18 -video_track_timescale 30000 $T/video.mp4
 DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 $T/video.mp4)
 
-# Music: a 4 s teaser of the finished song, then the 36 s growth, then the finished song to the end.
-SELFIE_START=$(echo "45 + $APP_DUR" | bc)
+# Music: 1 s of silence, the finished song softly under the intro, then the 36 s growth,
+# then the finished song to the end.
+GROW_START=$TITLE
+TEASER=$(echo "$TITLE - $LEAD" | bc)
+SELFIE_START=$(echo "$TITLE + 36 + 5 + $APP_DUR" | bc)
 END_START=$(echo "$SELFIE_START + 4.9" | bc)
 ffmpeg -v error -y \
   -i out/demo/song.wav -i "out/demo/song (growth).wav" -i out/demo/song.wav -i Media/post-run.mov \
   -filter_complex "
-    [0:a]atrim=0:4,afade=t=in:d=0.5,afade=t=out:st=3.3:d=0.7[teaser];
+    [0:a]atrim=0:$TEASER,afade=t=in:d=2,afade=t=out:st=$(echo "$TEASER - 0.8" | bc):d=0.8,volume=0.7,adelay=${LEAD}000|${LEAD}000[teaser];
     [1:a]atrim=0:36[grow];
-    [2:a]atrim=8:44,asetpts=PTS-STARTPTS,afade=t=out:st=$(echo "$DUR - 40 - 1.5" | bc):d=1.5[finish];
+    [2:a]atrim=8:44,asetpts=PTS-STARTPTS,afade=t=out:st=$(echo "$DUR - $TITLE - 36 - 1.5" | bc):d=1.5[finish];
     [teaser][grow]concat=n=2:v=0:a=1[a1];
     [a1][finish]acrossfade=d=1[music0];
     [music0]volume='if(between(t,$SELFIE_START,$SELFIE_START+4.9),0.45,1)':eval=frame[music];
@@ -63,7 +69,7 @@ ffmpeg -v error -y \
   -map "[mix]" -t "$DUR" $T/music.wav
 
 if [ "$WITH_NARRATION" = "1" ] && [ -z "$NARRATION" ]; then
-  python3 scripts/make_narration.py "$DUR" "$END_START" $T/narration.wav
+  python3 scripts/make_narration.py "$DUR" "$END_START" $T/narration.wav "$GROW_START"
   NARRATION=$T/narration.wav
 fi
 if [ -n "$NARRATION" ]; then

@@ -1,5 +1,7 @@
-# start_seconds	text	(start "END+x" = x seconds into the end card)
-# Kept minimal on purpose: the growth section is music only. Write it the way you'd say it to a friend.
-0.4	So this is what my run sounded like on Friday morning, or at least what my phone made of it.
-40.6	Gemma composed it right there on my phone, so none of my location or running data went anywhere.
+# start_seconds	text
+# Times: plain seconds, "GROW+x" = x s after the growth section starts, "END+x" = x s into the end card.
+# The first second is silent. The growth section is music only.
+1.3	Welcome to Grow a Song. The time you spend outside gets translated into a song.
+7.2	This is what my run sounded like on Friday morning, or at least what my phone made of it.
+GROW+36.6	Gemma composed it right there on my phone, so none of my location or running data went anywhere.
 END+0.2	Go outside and finish your song!

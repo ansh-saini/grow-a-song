@@ -1,6 +1,6 @@
 """Generates the demo narration with ElevenLabs, one clip per line, placed at fixed times.
 
-Usage: python3 scripts/make_narration.py <video_seconds> <end_card_start> <out.wav>
+Usage: python3 scripts/make_narration.py <video_seconds> <end_card_start> <out.wav> [growth_start]
 Reads ELEVEN_API_KEY from .env. Clips are cached by text+voice, so re-runs cost nothing.
 """
 import hashlib, json, os, subprocess, sys, urllib.request
@@ -39,12 +39,18 @@ def duration(path):
 
 
 total, end_start, out = float(sys.argv[1]), float(sys.argv[2]), sys.argv[3]
+grow_start = float(sys.argv[4]) if len(sys.argv) > 4 else 4.0
 lines = []
 for raw in open(os.path.join(ROOT, "scripts/narration.tsv")):
     if raw.startswith("#") or not raw.strip():
         continue
     start, text = raw.rstrip("\n").split("\t", 1)
-    t = end_start + float(start[4:]) if start.startswith("END+") else float(start)
+    if start.startswith("END+"):
+        t = end_start + float(start[4:])
+    elif start.startswith("GROW+"):
+        t = grow_start + float(start[5:])
+    else:
+        t = float(start)
     lines.append((t, text, clip(text)))
 
 inputs, filters = [], []
