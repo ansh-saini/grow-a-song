@@ -83,6 +83,11 @@ card("07-stats") { ctx in
     text("No server. No account. Works offline.", y: 1610, size: 42, color: colors[5])
 }
 
+card("075-app-bg") { _ in
+    text("The app", y: 70, size: 56, weight: .semibold, serif: true)
+    text("every day gets its own song", y: 150, size: 38, color: dim, italic: true)
+}
+
 card("08-selfie-bg") { _ in
     text("After the run", y: 110, size: 60, weight: .semibold, serif: true)
     text("listening back to the song I grew", y: 200, size: 42, color: dim, italic: true)
