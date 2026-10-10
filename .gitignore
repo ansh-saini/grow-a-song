@@ -3,3 +3,4 @@ out/
 *.xcodeproj/
 Packages/GrowCore/.build/
 .DS_Store
+Media/
