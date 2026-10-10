@@ -59,7 +59,7 @@ fi
 if [ -n "$NARRATION" ]; then
   # Duck music under narration.
   ffmpeg -v error -y -i $T/music.wav -i "$NARRATION" -filter_complex \
-    "[1:a]aresample=44100,aformat=channel_layouts=stereo,volume=3.2[n];[n]asplit[n1][n2];[0:a][n1]sidechaincompress=threshold=0.012:ratio=12:attack=15:release=650[duck];[duck][n2]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.89:level=false" \
+    "[1:a]aresample=44100,aformat=channel_layouts=stereo,volume=2.4[n];[n]asplit[n1][n2];[0:a][n1]sidechaincompress=threshold=0.02:ratio=3:attack=40:release=900[duck];[duck][n2]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.89:level=false" \
     $T/final.wav
 else
   cp $T/music.wav $T/final.wav
